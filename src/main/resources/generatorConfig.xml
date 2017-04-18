@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+	<!-- <classPathEntry location="D:\eclipse_project\ncs\ncs-web\target\ncs-web\WEB-INF\lib\ojdbc6-11.2.0.3.0.jar"/> -->
+	<classPathEntry location="D:\ojdbc6-11.2.0.3.0.jar"/>
+
+   <!-- 对Oracle数据库中的表生成相关的mapper -->
+   <context id="OracleTables" targetRuntime="MyBatis3">
+   
+   <!-- 控制生成的代码中的注释 -->
+	<commentGenerator>
+		<!-- 去除自动生成的注释 -->  
+        <property name="suppressAllComments" value="true" /> 
+	</commentGenerator>
+
+    <jdbcConnection driverClass="oracle.jdbc.driver.OracleDriver" 
+    connectionURL="jdbc:oracle:thin:@10.1.19.67:1521/NCSDEV" 
+    userId="ncs_dev" password="acca" />
+    
+    <javaModelGenerator targetPackage="com.entity.user" targetProject="tmvc/src/main/java" />
+    <sqlMapGenerator targetPackage="mapper.user" targetProject="tmvc/src/main/resources" />
+    <javaClientGenerator targetPackage="com.mapper.user" targetProject="tmvc/src/main/java" type="XMLMAPPER" />
+    
+    <!-- 11.用户表 -->
+    <table tableName="SYS_USER" >
+      <property name="rootClass" value="com.entities.share.BaseEntity" /> 
+    </table>
+    
+  </context>
+</generatorConfiguration>
