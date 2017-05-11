@@ -1,7 +1,5 @@
 package thread;
 
-import java.lang.management.ThreadInfo;
-
 public class Thread2 implements Runnable {
 	private String name;
 	public Thread2(String str){
@@ -18,5 +16,9 @@ public class Thread2 implements Runnable {
 			}
 		}
 	}
-
+	
+	public static void main(String[] args) {
+		new Thread(new Thread2("C")).start();
+		new Thread(new Thread2("D")).start();;
+	}
 }
