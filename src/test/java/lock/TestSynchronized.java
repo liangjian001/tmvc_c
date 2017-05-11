@@ -49,7 +49,7 @@ public class TestSynchronized {
 	}
 	
 	
-	//Main方法
+	//main方法
 	public static void main(String[] args){
 		/*
 		final TestSynchronized test = new TestSynchronized();
