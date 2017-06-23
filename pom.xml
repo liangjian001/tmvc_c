@@ -16,7 +16,7 @@
 	<mybatis.version>3.2.8</mybatis.version>  
 	<mybatis-spring.version>1.2.2</mybatis-spring.version>  
 	<jackson.version>2.5.0</jackson.version>
-	
+	<activemq.version>5.9.0</activemq.version>
   </properties>  
   
   <dependencies>
@@ -45,6 +45,12 @@
 		<artifactId>spring-context</artifactId>
 		<version>${spring.version}</version>
 	</dependency>
+	<!-- 提供JMS，Freemarker,Quartz集成服务 -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context-support</artifactId>
+        <version>${spring.version}</version>
+    </dependency>
 	<dependency>
 		<groupId>org.springframework</groupId>
 		<artifactId>spring-tx</artifactId>
@@ -164,13 +170,24 @@
 		<artifactId>commons-io</artifactId>
 		<version>2.4</version>
 	</dependency>
-
 	<dependency>
 		<groupId>commons-fileupload</groupId>
 		<artifactId>commons-fileupload</artifactId>
 		<version>1.2.2</version>
 	</dependency>
  
+ 	<!-- Active MQ消息队列 -->
+ 	<dependency>
+		<groupId>org.apache.activemq</groupId>
+		<artifactId>activemq-all</artifactId>
+		<version>${activemq.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-jms</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+	
  </dependencies>
   
 <build>  
@@ -181,7 +198,7 @@
 		<configuration>  
 		<source>1.7</source>  
 		<target>1.7</target>  
-		</configuration>  
+		</configuration>
 	</plugin>  
 	<plugin>  
 		<artifactId>maven-war-plugin</artifactId>  

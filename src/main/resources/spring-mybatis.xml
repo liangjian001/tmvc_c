@@ -45,6 +45,9 @@
 		<property name="logAbandoned" value="true" />
 		<!-- filters:监控数据库 -->
 		<property name="filters" value="mergeStat" />
+		<!--property name="filters" value="wall,mergeStat,slf4j" / -->
+		<property name="connectionProperties"
+			value="druid.stat.slowSqlMillis=1000;druid.stat.logSlowSql=true;druid.stat.mergeSql=true" />
 	</bean>
 
     <!-- myBatis文件 -->
