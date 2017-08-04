@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/rabbit
+	http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd">
+	
+     <description>rabbitmq 连接服务配置</description>
+     
+     <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">            
+        <!-- 核心线程数，默认为1 -->            
+        <property name="corePoolSize" value="10" />            
+        <!-- 最大线程数，默认为Integer.MAX_VALUE -->            
+        <property name="maxPoolSize" value="50" />            
+        <!-- 队列最大长度，一般需要设置值>=notifyScheduledMainExecutor.maxNum；默认为Integer.MAX_VALUE -->            
+        <property name="queueCapacity" value="1000" />            
+        <!-- 线程池维护线程所允许的空闲时间，默认为60s -->            
+        <property name="keepAliveSeconds" value="300" />            
+        <!-- 线程池对拒绝任务（无线程可用）的处理策略，目前只支持AbortPolicy、CallerRunsPolicy；默认为后者 -->            
+        <property name="rejectedExecutionHandler">            
+            <!-- AbortPolicy:直接抛出java.util.concurrent.RejectedExecutionException异常 -->            
+            <!-- CallerRunsPolicy:主线程直接执行该任务，执行完之后尝试添加下一个任务到线程池中，可以有效降低向线程池内添加任务的速度 -->            
+            <!-- DiscardOldestPolicy:抛弃旧的任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->            
+            <!-- DiscardPolicy:抛弃当前任务、暂不支持；会导致被丢弃的任务无法再次被执行 -->            
+            <bean class="java.util.concurrent.ThreadPoolExecutor$CallerRunsPolicy" />            
+        </property>            
+    </bean>  
+    
+	<!--配置connection-factory，指定连接rabbit server参数-->
+	<rabbit:connection-factory id="connectionFactory"
+		addresses="10.1.39.62:5672" virtual-host="test_host" username="user01" password="123456" /> 
+		
+    <!--配置connection-factory，指定连接rabbit server参数
+	<rabbit:connection-factory id="connectionFactory2"
+		host="10.1.39.62" port="5672"
+		virtual-host="test_host"
+		username="user01" password="123456" /> -->
+		
+	<!-- 测试 
+	<bean id="connectionFactory3"  class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">    
+        <constructor-arg value="localhost" />
+        <property name="username" value="guest" />
+        <property name="password" value="guest" />
+        <property name="host" value="10.1.39.62" />
+        <property name="port" value="15672" />
+        <property name="virtualHost" value="/" />
+    </bean>-->
+
+	<!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
+	<rabbit:admin id="connectAdmin" connection-factory="connectionFactory" />
+	<!--
+	<bean id="connectAdmin" class="org.springframework.amqp.rabbit.core.RabbitAdmin">
+        <constructor-arg ref="connectionFactory" />
+    </bean> -->
+
+    <!-- queue 队列声明 需要发送消息到哪些队列-->  
+	<!-- 消息系统监听队列 -->  
+    <rabbit:queue id="message_queue" name="message_queue" durable="true" auto-delete="false" 
+    exclusive="false" declared-by="connectAdmin"/> 
+
+	<!-- exchange queue binging key 绑定 -->  
+    <rabbit:topic-exchange id="message-exchange" name="message-exchange" durable="true" auto-delete="false" declared-by="connectAdmin">  
+        <rabbit:bindings>  
+            <rabbit:binding queue="message_queue" pattern="message.*" />  
+        </rabbit:bindings>  
+    </rabbit:topic-exchange>
+
+    <!-- spring amqp默认的是jackson 的一个插件,目的将生产者生产的数据转换为json存入消息队列，
+                  由于fastjson的速度快于jackson,这里替换为fastjson的一个实现 -->  
+    <bean id="jsonMessageConverter"  class="com.rabbitmq.FastJsonMessageConverter"></bean>
+    <!-- 与上面对比 
+    <bean id="serializerMessageConverter"  class="org.springframework.amqp.support.converter.SimpleMessageConverter" />
+     -->
+       
+    <!-- spring template声明-->  
+    <rabbit:template id="amqpTemplate" exchange="message-exchange" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>  
+    
+    <!-- 创建rabbitTemplate 消息模板类     
+    <bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate">    
+        <constructor-arg ref="connectionFactory"></constructor-arg>
+        <property name="exchange" value="message-exchange" />
+        <property name="routingKey" value="message.tonson" />
+        <property name="queue" value="message_queue" />
+        <property name="messageConverter" ref="serializerMessageConverter" />
+    </bean>-->
+    
+    <!-- 默认消息处理类，可以重写 -->  
+    <bean id="messageHandler" class="com.rabbitmq.MessageHandler"></bean>  
+      
+    <!-- 用于消息的监听的代理类MessageListenerAdapter -->    
+    <bean id="messageQueueListenerAdapter"    
+        class="org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter">    
+        <constructor-arg ref="messageHandler" />    
+        <property name="defaultListenerMethod" value="handleMessage"></property>    
+        <property name="messageConverter" ref="jsonMessageConverter"></property>    
+    </bean>   
+      
+    <!-- 监听容器 -->  
+    <rabbit:listener-container  
+        connection-factory="connectionFactory" acknowledge="auto" task-executor="taskExecutor">  
+        <rabbit:listener queues="message_queue" ref="messageQueueListenerAdapter" />  
+    </rabbit:listener-container>
+    
+    <bean id="messageSender" class="com.rabbitmq.MessageSender">    
+         <property name="amqpTemplate" ref="amqpTemplate"></property>    
+    </bean>  
+
+	
+</beans>
