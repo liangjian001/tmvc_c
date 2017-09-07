@@ -26,7 +26,6 @@ public class Thread1 extends Thread{
 		Thread1 t2 = new Thread1("B");
 		t1.start();
 		t2.start();
-		
 		try {
 			t1.join();
 		} catch (InterruptedException e) {

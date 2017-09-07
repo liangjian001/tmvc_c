@@ -19,14 +19,20 @@ public class RabbitMQDemo {
     private MessageSender messageSender;  
       
     @Test  
-    public void testSendMessage(){  
-        CommonMessage message = new CommonMessage();  
-        message.setSource("tonson");  
-        JSONObject obj = new JSONObject();  
-        obj.put("test", "test json message");  
-        message.setMessage(obj);  
-        messageSender.setRoutingKey("message.tonson");  
-        messageSender.sendDataToQueue(message);  
-    }  
+    public void testSendMessage(){
+        CommonMessage message = new CommonMessage();
+        message.setSource("tonson");
+        JSONObject obj = new JSONObject();
+        obj.put("test1", "test json message1");
+        message.setMessage(obj);
+        messageSender.setRoutingKey("message.tonson");
+        messageSender.sendDataToQueue(message);
+        
+        JSONObject obj2 = new JSONObject();
+        obj2.put("test2", "test json message2");
+        message.setMessage(obj);
+        messageSender.setRoutingKey("message.test");  
+        messageSender.sendDataToQueue(message); 
+    }
       
 }

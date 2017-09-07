@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MessageSender {  
-      
+     
     private AmqpTemplate amqpTemplate;
       
     private String routingKey;
     
-    //@Resource(name="rabbitTemplate")
-    //private RabbitTemplate rabbitTemplate;
+    @Resource(name="rabbitTemplate")
+    private RabbitTemplate rabbitTemplate;
   
     public AmqpTemplate getAmqpTemplate() {  
         return amqpTemplate;  
@@ -37,12 +37,11 @@ public class MessageSender {
     }  
   
     public void sendDataToQueue(Object obj) {  
-        amqpTemplate.convertAndSend(this.routingKey, obj);  
+        amqpTemplate.convertAndSend(this.routingKey, obj);
     }
     
-    /*
     public void sendMessageToQueue(Object obj){
     	rabbitTemplate.convertAndSend(this.routingKey, obj);
-    }*/
+    }
       
 }  

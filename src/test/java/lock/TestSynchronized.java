@@ -1,7 +1,7 @@
 package lock;
 
 //类锁的修饰（静态）方法和代码块
-public class TestSynchronized {
+public class TestSynchronized{
 	//代码块的方式
 	public void test1() throws InterruptedException{
 		synchronized(TestSynchronized.class){
@@ -24,6 +24,7 @@ public class TestSynchronized {
 	
 	
 	private static int num = 5;
+	//静态方法属于类
 	public static void add(){
 		synchronized(TestSynchronized.class){
 			num++;
@@ -48,6 +49,35 @@ public class TestSynchronized {
 		}
 	}
 	
+	public static void methodAdd(){
+		System.out.println("对num执行++操作...");
+		synchronized(TestSynchronized.class){
+			for (int i=0;i<3;i++){
+				num++;
+				System.out.println(Thread.currentThread().getName()+" ++: "+num);
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public static void methodSub(){
+		System.out.println("对num执行--操作...");
+		synchronized(TestSynchronized.class){
+			for (int i=0;i<3;i++){
+				num--;
+				System.out.println(Thread.currentThread().getName()+" --: "+num);
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 	
 	//main方法
 	public static void main(String[] args){
@@ -92,6 +122,7 @@ public class TestSynchronized {
 		t4.start();
 		*/
 		
+		/*
 		for (int i=0;i<3;i++){
 			Thread ta = new Thread(new Runnable(){
 				@Override
@@ -108,6 +139,26 @@ public class TestSynchronized {
 			},"F");
 			ta.start();
 			tb.start();
-		}
+		}*/
+		
+		Thread tta = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				TestSynchronized.methodAdd();
+			}
+		},"A");
+		
+		Thread ttb = new Thread(new Runnable(){
+			@Override
+			public void run() {
+				TestSynchronized.methodSub();
+			}
+		},"B");
+		
+		
+		tta.start();
+		ttb.start();
 	}
+
+
 }

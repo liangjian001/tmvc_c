@@ -31,25 +31,25 @@
         </property>            
     </bean>  
     
+    <!-- spring-rabbit使用1.6版本，spring 4.2以上才可以支持使用注解方式配置 -->
 	<!--配置connection-factory，指定连接rabbit server参数-->
 	<rabbit:connection-factory id="connectionFactory"
-		addresses="10.1.39.62:5672" virtual-host="test_host" username="user01" password="123456" /> 
+		addresses="10.1.39.62:5672" 
+		virtual-host="test_host" 
+		username="user01" 
+		password="123456" /> 
 		
-    <!--配置connection-factory，指定连接rabbit server参数
-	<rabbit:connection-factory id="connectionFactory2"
-		host="10.1.39.62" port="5672"
-		virtual-host="test_host"
-		username="user01" password="123456" /> -->
-		
-	<!-- 测试 
-	<bean id="connectionFactory3"  class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">    
-        <constructor-arg value="localhost" />
-        <property name="username" value="guest" />
-        <property name="password" value="guest" />
-        <property name="host" value="10.1.39.62" />
+	<!-- 测试对比 -->
+	<bean id="connectionFactory2"  class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">    
+		<constructor-arg value="localhost" />        
+		<property name="host" value="10.1.39.62" />
         <property name="port" value="15672" />
-        <property name="virtualHost" value="/" />
-    </bean>-->
+        <property name="username" value="user01" />
+        <property name="password" value="123456" />
+        <property name="virtualHost" value="test_host" />
+        <property name="publisherConfirms" value="true"/>
+        <property name="publisherReturns" value="true"/>
+    </bean>
 
 	<!--通过指定下面的admin信息，当前producer中的exchange和queue会在rabbitmq服务器上自动生成 -->
 	<rabbit:admin id="connectAdmin" connection-factory="connectionFactory" />
@@ -72,22 +72,22 @@
 
     <!-- spring amqp默认的是jackson 的一个插件,目的将生产者生产的数据转换为json存入消息队列，
                   由于fastjson的速度快于jackson,这里替换为fastjson的一个实现 -->  
-    <bean id="jsonMessageConverter"  class="com.rabbitmq.FastJsonMessageConverter"></bean>
-    <!-- 与上面对比 
+    <bean id="jsonMessageConverter"  class="com.rabbitmq.FastJsonMessageConverter"/>
+    
+    <!-- 与上面对比--> 
     <bean id="serializerMessageConverter"  class="org.springframework.amqp.support.converter.SimpleMessageConverter" />
-     -->
        
     <!-- spring template声明-->  
     <rabbit:template id="amqpTemplate" exchange="message-exchange" connection-factory="connectionFactory"  message-converter="jsonMessageConverter"/>  
     
-    <!-- 创建rabbitTemplate 消息模板类     
+    <!-- 创建rabbitTemplate 消息模板类   对比-->
     <bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate">    
-        <constructor-arg ref="connectionFactory"></constructor-arg>
+        <constructor-arg ref="connectionFactory2"></constructor-arg>
         <property name="exchange" value="message-exchange" />
         <property name="routingKey" value="message.tonson" />
         <property name="queue" value="message_queue" />
         <property name="messageConverter" ref="serializerMessageConverter" />
-    </bean>-->
+    </bean>
     
     <!-- 默认消息处理类，可以重写 -->  
     <bean id="messageHandler" class="com.rabbitmq.MessageHandler"></bean>  
