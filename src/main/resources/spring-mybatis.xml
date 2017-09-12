@@ -12,12 +12,13 @@
 		">
 		
 	<!-- 配置数据源 使用的是Druid数据源 -->
-	<bean name="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
-		init-method="init" destroy-method="close">
-		<property name="driver" value="${jdbc.driverClassName}" />
+	<!-- 配置这个数据源的name属性的意义在于，如果存在多个数据源，监控的时候 可以通过名字来区分开来。如果没有配置，将会生成一个名字， 
+		  格式是："DataSource-" + System.identityHashCode(this) -->
+	<bean id="dataSource" name="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
 		<property name="url" value="${jdbc.url}" />
 		<property name="username" value="${jdbc.username}" />
 		<property name="password" value="${jdbc.password}" />
+		<property name="driverClassName" value="${jdbc.driverClassName}"/>
 		<!--initialSize:初始化连接大小    -->
 		<property name="initialSize" value="0" />
 		<!--maxActive:连接池最大使用连接数量  -->
@@ -46,9 +47,55 @@
 		<!-- filters:监控数据库 -->
 		<property name="filters" value="mergeStat" />
 		<!--property name="filters" value="wall,mergeStat,slf4j" / -->
+		<!-- 该处和下面的可选项proxyFilters一样的效果
 		<property name="connectionProperties"
-			value="druid.stat.slowSqlMillis=1000;druid.stat.logSlowSql=true;druid.stat.mergeSql=true" />
+			value="druid.stat.slowSqlMillis=1000;druid.stat.logSlowSql=true;druid.stat.mergeSql=true" />-->
+	    <!-- 可选项 -->
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat-filter"/>
+            </list>
+        </property>
 	</bean>
+	
+	<!-- 可选项 druid监控统计bean 对应上文dataSource中的proxyFilters -->
+    <bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+         <property name="slowSqlMillis" value="1000" />
+        <property name="logSlowSql" value="true" />
+        <property name="mergeSql" value="true" />
+    </bean>
+	
+<!-- 	<bean id="dataSource2" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close" >     -->
+<!--        数据库基本信息配置   -->
+<!--        <property name = "url" value = "${url}" />     -->
+<!--        <property name = "username" value = "${username}" />     -->
+<!--        <property name = "password" value = "${password}" />     -->
+<!--        <property name = "driverClassName" value = "${driverClassName}" />     -->
+<!--        <property name = "filters" value = "${filters}" />     -->
+<!--        最大并发连接数   -->
+<!--        <property name = "maxActive" value = "${maxActive}" />   -->
+<!--        初始化连接数量   -->
+<!--        <property name = "initialSize" value = "${initialSize}" />   -->
+<!--        配置获取连接等待超时的时间   -->
+<!--        <property name = "maxWait" value = "${maxWait}" />   -->
+<!--        最小空闲连接数   -->
+<!--        <property name = "minIdle" value = "${minIdle}" />     -->
+<!--        配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒   -->
+<!--        <property name = "timeBetweenEvictionRunsMillis" value ="${timeBetweenEvictionRunsMillis}" />   -->
+<!--        配置一个连接在池中最小生存的时间，单位是毫秒   -->
+<!--        <property name = "minEvictableIdleTimeMillis" value ="${minEvictableIdleTimeMillis}" />     -->
+<!--        <property name = "validationQuery" value = "${validationQuery}" />     -->
+<!--        <property name = "testWhileIdle" value = "${testWhileIdle}" />     -->
+<!--        <property name = "testOnBorrow" value = "${testOnBorrow}" />     -->
+<!--        <property name = "testOnReturn" value = "${testOnReturn}" />     -->
+<!--        <property name = "maxOpenPreparedStatements" value ="${maxOpenPreparedStatements}" />   -->
+<!--        打开 removeAbandoned 功能   -->
+<!--        <property name = "removeAbandoned" value = "${removeAbandoned}" />   -->
+<!--        1800 秒，也就是 30 分钟   -->
+<!--        <property name = "removeAbandonedTimeout" value ="${removeAbandonedTimeout}" />   -->
+<!--        关闭 abanded 连接时输出错误日志      -->
+<!--        <property name="logAbandoned" value = "${logAbandoned}" />   -->
+<!--   </bean>   -->
 
     <!-- myBatis文件 -->
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">

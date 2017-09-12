@@ -3,7 +3,12 @@ package com.entity.user;
 import com.entities.share.BaseEntity;
 
 public class SysUser extends BaseEntity {
-    private String userId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private String userId;
 
     private String userPassword;
 
