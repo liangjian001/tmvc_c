@@ -1,19 +1,18 @@
 package com.entities.user;
 
-public class UserInfo {
-	private Integer id;
+import com.entities.share.BaseEntity;
+
+public class UserInfo extends BaseEntity{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String userCode;
 	private String userName;
 	private String password;
 	private String userRole;
 	private String userStatus;
 	
-	public Integer getId() {
-		return id;
-	}
-	public void setId(Integer id) {
-		this.id = id;
-	}
 	public String getUserCode() {
 		return userCode;
 	}

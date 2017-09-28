@@ -14,7 +14,7 @@
 	http://www.springframework.org/schema/integration/amqp 
 	http://www.springframework.org/schema/integration/amqp/spring-integration-amqp.xsd">
 	
-     <description>rabbitmq 连接服务配置</description>
+     <description>rabbitmq消费者连接服务配置</description>
      
      <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">            
         <!-- 核心线程数，默认为1 -->            
@@ -38,14 +38,14 @@
     <!-- spring-rabbit使用1.6版本，spring 4.2以上才可以支持使用注解方式配置 -->
 	<!--配置connection-factory，指定连接rabbit server参数-->
 	<rabbit:connection-factory id="connectionFactory" addresses="10.1.39.62:5672" virtual-host="test_host" 
-		username="user01" password="123456" /> 
+		username="user02" password="123456" /> 
 		
 	<!-- 测试对比 -->
 	<bean id="connectionFactory2"  class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">    
 		<constructor-arg value="localhost" />        
 		<property name="host" value="10.1.39.62" />
         <property name="port" value="5672" />
-        <property name="username" value="user01" />
+        <property name="username" value="user02" />
         <property name="password" value="123456" />
         <property name="virtualHost" value="test_host" />
         <property name="publisherConfirms" value="true"/>
@@ -61,13 +61,13 @@
 
     <!-- queue 队列声明 需要发送消息到哪些队列-->  
 	<!-- 消息系统监听队列 -->  
-    <rabbit:queue id="message_queue" name="message_queue" durable="true" auto-delete="false" 
+    <rabbit:queue id="message_queue2" name="message_queue2" durable="true" auto-delete="false" 
     exclusive="false" declared-by="connectAdmin"/> 
 
 	<!-- exchange queue binging key 绑定 -->  
     <rabbit:topic-exchange id="message-exchange" name="message-exchange" durable="true" auto-delete="false" declared-by="connectAdmin">  
         <rabbit:bindings>  
-            <rabbit:binding queue="message_queue" pattern="message.*" />  
+            <rabbit:binding queue="message_queue2" pattern="message.*" />  
         </rabbit:bindings>  
     </rabbit:topic-exchange>
 
@@ -86,7 +86,7 @@
         <constructor-arg ref="connectionFactory2"></constructor-arg>
         <property name="exchange" value="message-exchange" />
         <property name="routingKey" value="message.tonson" />
-        <property name="queue" value="message_queue" />
+        <property name="queue" value="message_queue2" />
         <property name="messageConverter" ref="serializerMessageConverter" />
     </bean>
     
@@ -104,7 +104,7 @@
     <!-- 监听容器 -->  
     <rabbit:listener-container  
         connection-factory="connectionFactory" acknowledge="auto" task-executor="taskExecutor">  
-        <rabbit:listener queues="message_queue" ref="messageQueueListenerAdapter" />  
+        <rabbit:listener queues="message_queue2" ref="messageQueueListenerAdapter" />  
     </rabbit:listener-container>
     
     <bean id="messageSender" class="com.rabbitmq.MessageSender">    

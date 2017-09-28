@@ -1,7 +1,7 @@
 package com.mapper.user;
 
-import com.entity.user.SysUser;
-import com.entity.user.SysUserExample;
+import com.entities.user.SysUser;
+import com.entities.user.SysUserExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,4 +27,8 @@ public interface SysUserMapper {
     int updateByPrimaryKeySelective(SysUser record);
 
     int updateByPrimaryKey(SysUser record);
+    
+    List<SysUser> getUserListByEntity(SysUser record);
+    
+    int selectCountByEntity(SysUser record);
 }
