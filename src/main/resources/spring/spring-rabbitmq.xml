@@ -36,9 +36,9 @@
     </bean>  
     
     <!-- spring-rabbit使用1.6版本，spring 4.2以上才可以支持使用注解方式配置 -->
-	<!--配置connection-factory，指定连接rabbit server参数-->
-	<rabbit:connection-factory id="connectionFactory" addresses="10.1.39.62:5672" virtual-host="test_host" 
-		username="user02" password="123456" /> 
+	<!--配置connection-factory，指定连接rabbit server参数host和port可以一块写成：addresses="10.1.39.62:5672"-->
+	<rabbit:connection-factory id="connectionFactory" host="${rmq.host}" port="${rmq.port}" virtual-host="${rmq.virtualHost}" 
+		username="${rmq.username}" password="${rmq.password}" /> 
 		
 	<!-- 测试对比 -->
 	<bean id="connectionFactory2"  class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">    
@@ -85,7 +85,7 @@
     <bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate">    
         <constructor-arg ref="connectionFactory2"></constructor-arg>
         <property name="exchange" value="message-exchange" />
-        <property name="routingKey" value="message.tonson" />
+        <property name="routingKey" value="message.*" />
         <property name="queue" value="message_queue2" />
         <property name="messageConverter" ref="serializerMessageConverter" />
     </bean>
